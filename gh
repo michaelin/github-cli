@@ -2,4 +2,5 @@ docker run -it --rm \
     --user $(id -u):$(id -g) \
     -v $PWD:/git -w /git \
     -e GITHUB_TOKEN \
-    michaelin/github-cli
+    michaelin/github-cli \
+    $*
