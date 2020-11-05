@@ -7,40 +7,51 @@ With this container, you can avoid having to build and install the Github CLI yo
 
 CLI containers wrap a single command line utility, allowing the user to transparently use it in place installing the CLI utility. The container started with an alias or a script that.
 
-## Github Personal Access Token
+## Using the container
 
-`gh` requires a GITHUB_TOKEN to function. There are currently problems with doing this automatically from headless systems, so you'll have to [generate a personal access token](https://github.com/settings/tokens) yourself. The token needs to have the `repo` and `read:org` scopes.
-
-Make sure the token is available in the GITHUB_TOKEN environment variable.
-
-## Running the container
-The following command is used to run the container
+1. Copy `gh` to `$HOME/.local/bin`
+2. Make sure it is executable by running `chmod +x $HOME/.local/bin/gh`
+3. Start an `ssh-agent` and add the ssh key you use for Github. If in doubt, just run `gh` to get more info.
+4. Run `gh auth login` to generate an authentication token 
+5. You can now run any other `gh` command. Try
 ```
-docker run -it --rm \
-    --user $(id -u):$(id -g) \
-    -v $PWD:/git -w /git \
-    -e GITHUB_TOKEN \
-    michaelin/github-cli
+gh repo view cli/cli
+gh repo clone cli/cli
 ```
 
-This is the equivalent of running the `gh` command without parameters. Add `gh` required parameters at the end of the commmand.
+If you wan't to use the `ssh` protocol, gh needs access to you ssh key. The container mounts the currently running 
 
-Now, that is neither simple or transparent to the user. Instead, you can create an alias to wrap it all. Add the following to .bashrc or .bash_aliases
+## Auth options
 
-```
-alias gh='docker run -it --rm \
-    --user $(id -u):$(id -g) \
-    -v $PWD:/git -w /git \
-    -e GITHUB_TOKEN \
-    michaelin/github-cli \
-    $*'
-```
+The Github CLI requres a few things to work:
+- An access token is needed to ensure you have the necessary permissions in Github
+- Since you should be using `ssh` when accessing Github, `gh` needs access to you ssh key.
 
-And you´re now good to go:
-```
-gh repo view -R cli/cli
-gh repo checkout https://github.com/cli/cli.git
-```
+The authentication token and other relevant configuration will be stored in `$HOME/.config/gh` on your local machine
+and is mounted into the container at runtime. This ensures that auth and config is persisted between runs.
+
+The SSH key is made available to the container by making the ssh-agent on the local machine available inside the container.
+This way we avoid storing the private ssh key inside the container at any point. Much secure. Wow!
+
+For detailed information on the pros, cons and pitfalls of how to properly use the ssh-agent, I recommend you read
+[The pitfalls of using ssh-agent, or how to use an agent safely](http://rabexc.org/posts/pitfalls-of-ssh-agents)
+
+### Login with a web browser
+
+The `gh auth login` guide will allow you to `Login with a web browser`. This is absolutely the easiest option.
+The only issue is that opening the browser automatically will fail. To get around that, just copy the URL given
+in the guide text, and copy it into a brower manually. Then copy the onetime token and paste it in the page you
+just navigated to. The authentication will be completed and relevant connection info will be added to `$HOME/.config/gh`
+on you local machine.
+
+### Paste an authentication token
+
+An alternative to loggin in with a browser is to manually create an authentication token.
+`gh` will describe what you need to do create a token on [github.com](https://github.com/settings/tokens).
+The token needs to have at least the `repo` and `read:org` scopes.
+
+When you have the token, paste it into the wizard to persist it.
+
 
 ## Building
 
