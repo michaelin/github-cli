@@ -22,6 +22,6 @@ else
         -v $(dirname $SSH_AUTH_SOCK):$(dirname $SSH_AUTH_SOCK) \
         -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
         -e GITHUB_TOKEN \
-        michaelin/github-cli \
+        michaelin/github-cli:${GH_CLI_VERSION:-latest} \
         $*
 fi
