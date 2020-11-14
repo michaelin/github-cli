@@ -2,13 +2,9 @@ name: Docker
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
-    branches:
-      - master
-
     # Publish `v1.2.3` tags as releases.
     tags:
-      - '*'
+      - 'v*'
 
 env:
   # TODO: Change variable to your image's name.
@@ -25,21 +21,16 @@ jobs:
       
       - name: User git tag as version number
         run: |
-          tag=latest
-          cli_version=trunk
-          
           # Use tag as version is it starts with
           tag_prefix="refs/tags/"
-          if [[ "${{ github.ref }}" == "${tag_prefix}v"* ]]; then
+          
+          # Strip git ref prefix from version
+          ref=${{ github.ref }}
+          version="${ref#$tag_prefix}"
             
-            # Strip git ref prefix from version
-            ref=${{ github.ref }}
-            version="${ref#$tag_prefix}"
-            
-            tag=$version
-            cli_version=$version
-          fi
-
+          tag=$version
+          cli_version=$version
+          
           # Export to environment
           echo tag=$tag >> $GITHUB_ENV
           echo cli_version=$cli_version >> $GITHUB_ENV
