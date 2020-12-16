@@ -1,19 +1,18 @@
 if [ ! -d "$HOME/.config" ]
 then
-    mkdir $HOME/.config
+    mkdir -p $HOME/.config/gh
 fi
 
 ssh-add -l &>/dev/null
 if [ "$?" != 0 ]
 then
-    echo "Please start an ssh-agent and add the ssh key you use for Github."
-    echo ""
-    echo "To start the agent and add your main ssh key, run"
-    echo "   eval \$(ssh-agent -s)"
-    echo "   ssh-add"
-    echo ""
-    echo "For more advanced ssh-agent usage, see http://rabexc.org/posts/pitfalls-of-ssh-agents"
-    echo ""
+    docker run -it --rm \
+        --user $(id -u):$(id -g) \
+        -v $PWD:/git -w /git \
+        -v $HOME/.config:/home/bitnami/.config \
+        -e GITHUB_TOKEN \
+        michaelin/github-cli:${GH_CLI_VERSION:-latest} \
+        $*
 else
     docker run -it --rm \
         --user $(id -u):$(id -g) \

@@ -43,9 +43,13 @@ The SSH key is made available to the container through a local SSH agent.
 By using the SSH agent we avoid storing the private ssh key inside the container at any point. Much secure. Wow!
 
 1. Start the SSH agent:
-`eval $(ssh-agent -s)`
+```
+eval $(ssh-agent -s)
+```
 1. Add you ssh key to the agent:
-`ssh-add /path/to/keyfile`
+```
+ssh-add /path/to/keyfile
+```
 
 When the container is run, the wrapper will discover the currently active ssh-agent and make it available for use inside the container.
 
